@@ -1,0 +1,5 @@
+/home/jorrdao/UNI/Mestrado/IC/Lab_1/sndfile-example/src/build/CMakeFiles/wav_cp.dir
+/home/jorrdao/UNI/Mestrado/IC/Lab_1/sndfile-example/src/build/CMakeFiles/wav_hist.dir
+/home/jorrdao/UNI/Mestrado/IC/Lab_1/sndfile-example/src/build/CMakeFiles/wav_dct.dir
+/home/jorrdao/UNI/Mestrado/IC/Lab_1/sndfile-example/src/build/CMakeFiles/edit_cache.dir
+/home/jorrdao/UNI/Mestrado/IC/Lab_1/sndfile-example/src/build/CMakeFiles/rebuild_cache.dir
