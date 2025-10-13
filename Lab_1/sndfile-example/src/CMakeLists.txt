@@ -1,22 +1,31 @@
-cmake_minimum_required(VERSION 3.16)
-project(sndfile-example)
+cmake_minimum_required(VERSION 3.10)
+project(AudioEffects)
 
-SET (CMAKE_BUILD_TYPE "Release")
-#SET (CMAKE_BUILD_TYPE "Debug")
+# Find required packages
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(SNDFILE REQUIRED sndfile)
+pkg_check_modules(FFTW3 REQUIRED fftw3)
 
-SET (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -std=c++20")
-SET (CMAKE_CXX_FLAGS_RELEASE "-O3")
-SET (CMAKE_CXX_FLAGS_DEBUG "-g3 -fsanitize=address")
+# Set C++ standard
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-SET (BASE_DIR ${CMAKE_SOURCE_DIR} )
-SET (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${BASE_DIR}/../bin)
+# Set output directories
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/../bin)
 
-add_executable (wav_cp wav_cp.cpp)
-target_link_libraries (wav_cp sndfile)
+# Add all source files
+file(GLOB SOURCES "*.cpp")
 
-add_executable (wav_hist wav_hist.cpp)
-target_link_libraries (wav_hist sndfile)
-
-add_executable (wav_dct wav_dct.cpp)
-target_link_libraries (wav_dct sndfile fftw3)
-
+# Create executable for each source file
+foreach(SOURCE ${SOURCES})
+    get_filename_component(EXECUTABLE_NAME ${SOURCE} NAME_WE)
+    add_executable(${EXECUTABLE_NAME} ${SOURCE})
+    target_link_libraries(${EXECUTABLE_NAME} ${SNDFILE_LIBRARIES})
+    target_include_directories(${EXECUTABLE_NAME} PRIVATE ${SNDFILE_INCLUDE_DIRS})
+    
+    # Add FFTW linking for wav_dct specifically
+    if(${EXECUTABLE_NAME} STREQUAL "wav_dct")
+        target_link_libraries(${EXECUTABLE_NAME} ${FFTW3_LIBRARIES})
+        target_include_directories(${EXECUTABLE_NAME} PRIVATE ${FFTW3_INCLUDE_DIRS})
+    endif()
+endforeach()

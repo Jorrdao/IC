@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/wav_effects.dir/wav_effects.cpp.o -o /home/jorrdao/UNI/Mestrado/IC/Lab_1/sndfile-example/bin/wav_effects  -lsndfile 

@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 
         size_t num_Samples = num_Frames * num_channels;
 
-        for (size_t i = 0; i < nSamples; i++) {
+        for (size_t i = 0; i < num_Samples; i++) {
             int channel = i % num_channels;
 
             // Use long long to prevent overflow during multiplication

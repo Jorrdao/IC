@@ -37,7 +37,6 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
   /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
   /usr/include/x86_64-linux-gnu/bits/types/locale_t.h \
   /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
-  /usr/include/x86_64-linux-gnu/bits/wchar2.h \
   /usr/include/c++/11/exception \
   /usr/include/c++/11/bits/exception.h \
   /usr/include/c++/11/bits/exception_ptr.h \
@@ -56,17 +55,12 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
   /usr/include/c++/11/ext/type_traits.h \
   /usr/include/c++/11/ext/numeric_traits.h \
   /usr/include/c++/11/bits/stl_pair.h \
-  /usr/include/c++/11/compare \
-  /usr/include/c++/11/concepts \
   /usr/include/c++/11/bits/stl_iterator_base_types.h \
-  /usr/include/c++/11/bits/iterator_concepts.h \
-  /usr/include/c++/11/bits/ptr_traits.h \
-  /usr/include/c++/11/bits/ranges_cmp.h \
   /usr/include/c++/11/bits/stl_iterator_base_funcs.h \
   /usr/include/c++/11/bits/concept_check.h \
   /usr/include/c++/11/debug/assertions.h \
   /usr/include/c++/11/bits/stl_iterator.h \
-  /usr/include/c++/11/bits/stl_construct.h \
+  /usr/include/c++/11/bits/ptr_traits.h \
   /usr/include/c++/11/debug/debug.h \
   /usr/include/c++/11/bits/predefined_ops.h \
   /usr/include/c++/11/cstdint \
@@ -127,7 +121,16 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
   /usr/include/c++/11/bits/cxxabi_forced.h \
   /usr/include/c++/11/bits/stl_function.h \
   /usr/include/c++/11/backward/binders.h \
-  /usr/include/c++/11/bits/stl_algo.h \
+  /usr/include/c++/11/bits/range_access.h \
+  /usr/include/c++/11/initializer_list \
+  /usr/include/c++/11/bits/basic_string.h \
+  /usr/include/c++/11/ext/alloc_traits.h \
+  /usr/include/c++/11/bits/alloc_traits.h \
+  /usr/include/c++/11/bits/stl_construct.h \
+  /usr/include/c++/11/string_view \
+  /usr/include/c++/11/bits/functional_hash.h \
+  /usr/include/c++/11/bits/string_view.tcc \
+  /usr/include/c++/11/ext/string_conversions.h \
   /usr/include/c++/11/cstdlib \
   /usr/include/stdlib.h \
   /usr/include/x86_64-linux-gnu/bits/waitflags.h \
@@ -139,28 +142,9 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
   /usr/include/x86_64-linux-gnu/sys/select.h \
   /usr/include/x86_64-linux-gnu/bits/select.h \
   /usr/include/x86_64-linux-gnu/bits/types/sigset_t.h \
-  /usr/include/x86_64-linux-gnu/bits/select2.h \
   /usr/include/alloca.h \
-  /usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h \
   /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
-  /usr/include/x86_64-linux-gnu/bits/stdlib.h \
   /usr/include/c++/11/bits/std_abs.h \
-  /usr/include/c++/11/bits/algorithmfwd.h \
-  /usr/include/c++/11/initializer_list \
-  /usr/include/c++/11/bits/stl_heap.h \
-  /usr/include/c++/11/bits/stl_tempbuf.h \
-  /usr/include/c++/11/bits/uniform_int_dist.h \
-  /usr/include/c++/11/bits/range_access.h \
-  /usr/include/c++/11/bits/basic_string.h \
-  /usr/include/c++/11/ext/alloc_traits.h \
-  /usr/include/c++/11/bits/alloc_traits.h \
-  /usr/include/c++/11/string_view \
-  /usr/include/c++/11/bits/functional_hash.h \
-  /usr/include/c++/11/bits/ranges_base.h \
-  /usr/include/c++/11/bits/max_size_type.h \
-  /usr/include/c++/11/numbers \
-  /usr/include/c++/11/bits/string_view.tcc \
-  /usr/include/c++/11/ext/string_conversions.h \
   /usr/include/c++/11/cstdio \
   /usr/include/stdio.h \
   /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
@@ -168,8 +152,6 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
   /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
   /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h \
   /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
-  /usr/include/x86_64-linux-gnu/bits/stdio.h \
-  /usr/include/x86_64-linux-gnu/bits/stdio2.h \
   /usr/include/c++/11/cerrno \
   /usr/include/errno.h \
   /usr/include/x86_64-linux-gnu/bits/errno.h \
@@ -246,6 +228,8 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 
 /usr/include/c++/11/limits:
 
+/usr/include/c++/11/bits/specfun.h:
+
 /usr/include/x86_64-linux-gnu/bits/iscanonical.h:
 
 /usr/include/x86_64-linux-gnu/bits/mathcalls-narrow.h:
@@ -255,6 +239,8 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 /usr/include/x86_64-linux-gnu/bits/flt-eval-method.h:
 
 /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h:
+
+/usr/include/x86_64-linux-gnu/bits/math-vector.h:
 
 /usr/include/math.h:
 
@@ -272,9 +258,13 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 
 /usr/include/c++/11/bits/basic_ios.tcc:
 
+/usr/include/c++/11/bits/locale_facets.tcc:
+
 /usr/include/x86_64-linux-gnu/c++/11/bits/ctype_inline.h:
 
 /usr/include/c++/11/bits/streambuf_iterator.h:
+
+/usr/include/c++/11/cwctype:
 
 /usr/include/c++/11/tr1/poly_hermite.tcc:
 
@@ -320,43 +310,13 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 
 /usr/include/c++/11/cerrno:
 
-/usr/include/c++/11/bits/locale_facets.tcc:
-
-/usr/include/x86_64-linux-gnu/bits/stdio2.h:
-
-/usr/include/x86_64-linux-gnu/bits/stdio.h:
-
 /usr/include/stdio.h:
 
 /usr/include/c++/11/cstdio:
 
-/usr/include/c++/11/bits/max_size_type.h:
-
-/usr/include/c++/11/bits/functional_hash.h:
-
-/usr/include/c++/11/string_view:
-
-/usr/include/c++/11/bits/alloc_traits.h:
-
-/usr/include/c++/11/bits/ranges_base.h:
-
-/usr/include/c++/11/bits/range_access.h:
-
-/usr/include/c++/11/bits/stl_heap.h:
-
-/usr/include/c++/11/initializer_list:
-
-/usr/include/c++/11/bits/algorithmfwd.h:
-
 /usr/include/c++/11/bits/std_abs.h:
 
-/usr/include/c++/11/cwctype:
-
-/usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h:
-
 /usr/include/alloca.h:
-
-/usr/include/x86_64-linux-gnu/bits/select2.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdlib-float.h:
 
@@ -372,13 +332,15 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 
 /usr/include/stdlib.h:
 
-/usr/include/c++/11/bits/iterator_concepts.h:
+/usr/include/c++/11/bits/functional_hash.h:
 
-/usr/include/features.h:
+/usr/include/c++/11/bits/stl_iterator_base_funcs.h:
 
-/usr/include/c++/11/ext/numeric_traits.h:
+/usr/include/ctype.h:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/c++locale.h:
+
+/usr/include/c++/11/initializer_list:
 
 /usr/include/c++/11/streambuf:
 
@@ -390,8 +352,6 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 
 /usr/include/c++/11/bits/string_view.tcc:
 
-/usr/include/c++/11/numbers:
-
 /usr/include/c++/11/bits/hash_bytes.h:
 
 /usr/include/c++/11/typeinfo:
@@ -401,6 +361,8 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 /usr/include/c++/11/bits/exception_defines.h:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/atomic_word.h:
+
+/usr/include/c++/11/string_view:
 
 /usr/include/c++/11/ext/string_conversions.h:
 
@@ -416,9 +378,7 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/wchar.h:
 
-/usr/include/c++/11/bits/specfun.h:
-
-/usr/include/x86_64-linux-gnu/bits/wchar2.h:
+/usr/include/c++/11/bits/range_access.h:
 
 /usr/include/c++/11/tr1/poly_laguerre.tcc:
 
@@ -427,8 +387,6 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 /usr/include/c++/11/bits/stl_iterator_base_types.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_timespec.h:
-
-/usr/include/c++/11/bits/stl_tempbuf.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/__FILE.h:
 
@@ -448,13 +406,9 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/types/__sigset_t.h:
 
-/usr/include/c++/11/concepts:
-
 /usr/include/x86_64-linux-gnu/sys/cdefs.h:
 
 /usr/include/x86_64-linux-gnu/asm/errno.h:
-
-/usr/include/x86_64-linux-gnu/bits/stdlib.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h:
 
@@ -463,6 +417,8 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h:
 
 /usr/include/c++/11/bits/ostream_insert.h:
+
+/usr/include/c++/11/debug/assertions.h:
 
 /usr/include/x86_64-linux-gnu/bits/wctype-wchar.h:
 
@@ -473,6 +429,8 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h:
 
 /usr/include/c++/11/ios:
+
+/usr/include/c++/11/bits/alloc_traits.h:
 
 /usr/include/asm-generic/errno-base.h:
 
@@ -488,6 +446,10 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/types/FILE.h:
 
+/usr/include/features.h:
+
+/usr/include/c++/11/ext/numeric_traits.h:
+
 /usr/include/c++/11/ext/type_traits.h:
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h:
@@ -502,15 +464,7 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 
 /usr/include/x86_64-linux-gnu/gnu/stubs-64.h:
 
-/usr/include/c++/11/compare:
-
 /usr/include/c++/11/bits/stl_function.h:
-
-/usr/include/x86_64-linux-gnu/bits/select.h:
-
-/usr/include/c++/11/backward/binders.h:
-
-/usr/include/c++/11/iostream:
 
 /usr/include/stdc-predef.h:
 
@@ -556,8 +510,6 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 
 /usr/include/c++/11/string:
 
-/usr/include/c++/11/bits/uniform_int_dist.h:
-
 /usr/include/c++/11/bits/cxxabi_init_exception.h:
 
 /usr/include/wchar.h:
@@ -566,29 +518,17 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 
 /usr/include/x86_64-linux-gnu/bits/floatn-common.h:
 
-/usr/include/c++/11/bits/ostream.tcc:
-
-/usr/include/c++/11/clocale:
-
-/usr/include/c++/11/bits/ranges_cmp.h:
-
-/usr/include/c++/11/bits/stl_iterator_base_funcs.h:
-
-/usr/include/ctype.h:
-
-/usr/include/c++/11/debug/assertions.h:
-
 /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h:
+
+/usr/include/c++/11/bits/stl_iterator.h:
 
 /usr/include/c++/11/new:
 
 /usr/include/c++/11/bits/ptr_traits.h:
 
-/usr/include/c++/11/bits/stl_iterator.h:
+/usr/include/c++/11/bits/ostream.tcc:
 
-/usr/include/c++/11/tr1/exp_integral.tcc:
-
-/usr/include/c++/11/bits/stl_construct.h:
+/usr/include/c++/11/clocale:
 
 /usr/include/c++/11/debug/debug.h:
 
@@ -605,10 +545,6 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h:
 
 /usr/include/x86_64-linux-gnu/bits/typesizes.h:
-
-/usr/include/x86_64-linux-gnu/bits/math-vector.h:
-
-/usr/include/c++/11/bits/stl_algo.h:
 
 /usr/include/fftw3.h:
 
@@ -631,12 +567,6 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 /usr/include/locale.h:
 
 /usr/include/x86_64-linux-gnu/bits/locale.h:
-
-/usr/include/c++/11/bits/basic_string.h:
-
-/usr/include/x86_64-linux-gnu/gnu/stubs.h:
-
-/usr/include/x86_64-linux-gnu/bits/endian.h:
 
 /usr/include/c++/11/tr1/modified_bessel_func.tcc:
 
@@ -692,6 +622,22 @@ CMakeFiles/wav_dct.dir/wav_dct.cpp.o: ../wav_dct.cpp \
 
 /usr/include/x86_64-linux-gnu/c++/11/bits/c++allocator.h:
 
-/usr/include/c++/11/ext/alloc_traits.h:
+/usr/include/x86_64-linux-gnu/bits/select.h:
+
+/usr/include/c++/11/iostream:
+
+/usr/include/c++/11/backward/binders.h:
+
+/usr/include/x86_64-linux-gnu/gnu/stubs.h:
+
+/usr/include/x86_64-linux-gnu/bits/endian.h:
+
+/usr/include/c++/11/bits/basic_string.h:
 
 /usr/include/c++/11/bits/cxxabi_forced.h:
+
+/usr/include/c++/11/ext/alloc_traits.h:
+
+/usr/include/c++/11/tr1/exp_integral.tcc:
+
+/usr/include/c++/11/bits/stl_construct.h:

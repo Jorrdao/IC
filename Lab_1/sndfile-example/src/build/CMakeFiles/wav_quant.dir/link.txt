@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/wav_quant.dir/wav_quant.cpp.o -o /home/jorrdao/UNI/Mestrado/IC/Lab_1/sndfile-example/bin/wav_quant  -lsndfile 

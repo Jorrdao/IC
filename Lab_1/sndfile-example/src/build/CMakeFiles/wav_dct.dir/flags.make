@@ -4,7 +4,7 @@
 # compile CXX with /usr/bin/c++
 CXX_DEFINES = 
 
-CXX_INCLUDES = 
+CXX_INCLUDES = -I/usr/include/opus
 
-CXX_FLAGS =  -Wall -Wextra -std=c++20 -O3
+CXX_FLAGS = -std=gnu++17
 

@@ -13,7 +13,7 @@ class WAVQuant {
 
     public:
         WAVQuant() {
-            quant_samples.resize(0);
+            num_samples.resize(0);
         }
 
         void quant(const std::vector<short>& samples, size_t num_bits) {
