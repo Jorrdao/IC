@@ -47,11 +47,14 @@ int main(int argc, char *argv[]) {
     size_t nFrames;
     vector<short> samples(FRAMES_BUFFER_SIZE * sfhIn.channels());
     WAVQuant quant;
+    
+    // Read and process all frames
     while((nFrames = sfhIn.readf(samples.data(), FRAMES_BUFFER_SIZE))) {
         samples.resize(nFrames * sfhIn.channels());
         quant.quant(samples, bits_to_cut);
+        
+        sfhOut.writef(samples.data(), nFrames);
     }
     
-    quant.toFile(sfhOut);
     return 0;
 }
