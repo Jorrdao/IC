@@ -1,0 +1,61 @@
+========================================
+AUDIO CODEC TEST RESULTS
+========================================
+
+Test file: ../Audio files (WAV format)-20251010/sample03.wav
+Original size: 3447.65 KB
+Test date: Sun Oct 19 18:02:24 2025
+
+----------------------------------------
+COMPRESSION RESULTS
+----------------------------------------
+
+=== 4 bits ===
+Encoded size: 861.92 KB
+Compression: 4.00x
+Space saved: 75.0%
+Encoding time: 0.0284s
+Decoding time: 0.0232s
+
+=== 6 bits ===
+Encoded size: 1292.87 KB
+Compression: 2.67x
+Space saved: 62.5%
+Encoding time: 0.0262s
+Decoding time: 0.0276s
+
+=== 8 bits ===
+Encoded size: 1723.82 KB
+Compression: 2.00x
+Space saved: 50.0%
+Encoding time: 0.0332s
+Decoding time: 0.0314s
+
+=== 10 bits ===
+Encoded size: 2154.77 KB
+Compression: 1.60x
+Space saved: 37.5%
+Encoding time: 0.0355s
+Decoding time: 0.0366s
+
+=== 12 bits ===
+Encoded size: 2585.72 KB
+Compression: 1.33x
+Space saved: 25.0%
+Encoding time: 0.0406s
+Decoding time: 0.0381s
+
+=== 14 bits ===
+Encoded size: 3016.67 KB
+Compression: 1.14x
+Space saved: 12.5%
+Encoding time: 0.0435s
+Decoding time: 0.0426s
+
+=== 16 bits ===
+Encoded size: 3447.62 KB
+Compression: 1.00x
+Space saved: 0.0%
+Encoding time: 0.0465s
+Decoding time: 0.0461s
+
