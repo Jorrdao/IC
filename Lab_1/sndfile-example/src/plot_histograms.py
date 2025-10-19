@@ -12,11 +12,25 @@ def plot_histogram(filename, title):
     
     # Create the plot
     plt.figure(figsize=(12, 6))
-    plt.bar(x, y, width=1.0)
+    # Calculate appropriate bar width
+    if len(x) > 1:
+        min_gap = np.min(np.diff(np.sort(x)))
+        bar_width = min_gap * 0.8
+    else:
+        bar_width = 1000
+
+    plt.bar(x, y, width=bar_width)
+
+    if len(x) > 0:
+        x_min, x_max = x.min(), x.max()
+        margin = (x_max - x_min) * 0.1 + 1000
+        plt.xlim(x_min - margin, x_max + margin)
+
     plt.title(f'Audio Histogram - {title}')
     plt.xlabel('Sample Value')
     plt.ylabel('Count')
     plt.grid(True, alpha=0.3)
+
     
     # Save the plot
     output_file = f'{filename.replace(".txt", "")}_plot.png'

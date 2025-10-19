@@ -50,7 +50,6 @@ int main(int argc, char *argv[]) {
     
     // Read and process all frames
     while((nFrames = sfhIn.readf(samples.data(), FRAMES_BUFFER_SIZE))) {
-        samples.resize(nFrames * sfhIn.channels());
         quant.quant(samples, bits_to_cut);
         
         sfhOut.writef(samples.data(), nFrames);
