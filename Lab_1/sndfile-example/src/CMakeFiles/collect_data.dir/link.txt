@@ -1,0 +1,1 @@
+/usr/bin/c++  -Wall -Wextra -std=c++20 -O3 CMakeFiles/collect_data.dir/collect_data.cpp.o -o /home/afonsocr/UNI/IC/IC/Lab_1/sndfile-example/bin/collect_data 

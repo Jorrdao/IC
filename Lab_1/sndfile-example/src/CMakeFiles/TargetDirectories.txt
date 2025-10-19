@@ -1,0 +1,13 @@
+/home/afonsocr/UNI/IC/IC/Lab_1/sndfile-example/src/CMakeFiles/Common.dir
+/home/afonsocr/UNI/IC/IC/Lab_1/sndfile-example/src/CMakeFiles/wav_cp.dir
+/home/afonsocr/UNI/IC/IC/Lab_1/sndfile-example/src/CMakeFiles/wav_hist.dir
+/home/afonsocr/UNI/IC/IC/Lab_1/sndfile-example/src/CMakeFiles/wav_dct.dir
+/home/afonsocr/UNI/IC/IC/Lab_1/sndfile-example/src/CMakeFiles/wav_quant.dir
+/home/afonsocr/UNI/IC/IC/Lab_1/sndfile-example/src/CMakeFiles/wav_effects.dir
+/home/afonsocr/UNI/IC/IC/Lab_1/sndfile-example/src/CMakeFiles/wav_cmp.dir
+/home/afonsocr/UNI/IC/IC/Lab_1/sndfile-example/src/CMakeFiles/wav_mono.dir
+/home/afonsocr/UNI/IC/IC/Lab_1/sndfile-example/src/CMakeFiles/wav_dct_enc.dir
+/home/afonsocr/UNI/IC/IC/Lab_1/sndfile-example/src/CMakeFiles/wav_dct_dec.dir
+/home/afonsocr/UNI/IC/IC/Lab_1/sndfile-example/src/CMakeFiles/collect_data.dir
+/home/afonsocr/UNI/IC/IC/Lab_1/sndfile-example/src/CMakeFiles/edit_cache.dir
+/home/afonsocr/UNI/IC/IC/Lab_1/sndfile-example/src/CMakeFiles/rebuild_cache.dir

@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/wav_dct.dir/wav_dct.cpp.o -o /home/jorrdao/UNI/Mestrado/IC/Lab_1/sndfile-example/bin/wav_dct  -lsndfile -lfftw3 

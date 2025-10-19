@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/wav_hist.dir/wav_hist.cpp.o -o /home/jorrdao/UNI/Mestrado/IC/Lab_1/sndfile-example/bin/wav_hist  -lsndfile 
