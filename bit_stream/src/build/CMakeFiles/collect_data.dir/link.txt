@@ -1,1 +1,0 @@
-/usr/bin/c++  -Wall -Wextra -O3 CMakeFiles/collect_data.dir/collect_data.cpp.o -o /home/janicas/Documents/Universidade/5ºAno/IC/bit_stream/bin/collect_data 

@@ -1,0 +1,8 @@
+/home/janicas/Documents/Universidade/5ºAno/IC/bit_stream/src/build/CMakeFiles/Common.dir
+/home/janicas/Documents/Universidade/5ºAno/IC/bit_stream/src/build/CMakeFiles/text2bin.dir
+/home/janicas/Documents/Universidade/5ºAno/IC/bit_stream/src/build/CMakeFiles/bin2text.dir
+/home/janicas/Documents/Universidade/5ºAno/IC/bit_stream/src/build/CMakeFiles/wav_quant_enc.dir
+/home/janicas/Documents/Universidade/5ºAno/IC/bit_stream/src/build/CMakeFiles/wav_quant_dec.dir
+/home/janicas/Documents/Universidade/5ºAno/IC/bit_stream/src/build/CMakeFiles/collect_data.dir
+/home/janicas/Documents/Universidade/5ºAno/IC/bit_stream/src/build/CMakeFiles/edit_cache.dir
+/home/janicas/Documents/Universidade/5ºAno/IC/bit_stream/src/build/CMakeFiles/rebuild_cache.dir

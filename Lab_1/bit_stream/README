@@ -1,0 +1,7 @@
+To build:
+	cd src; make; cd ..
+
+To test:
+cd test
+../bin/wav_quant_enc ../sample.wav compressed.bin 
+../bin/wav_quant_dec compressed.bin recovered.wav

@@ -1,1 +1,0 @@
-/usr/bin/c++  -Wall -Wextra -O3 CMakeFiles/wav_quant_enc.dir/wav_quant_enc.cpp.o CMakeFiles/Common.dir/bit_stream.cpp.o CMakeFiles/Common.dir/byte_stream.cpp.o -o /home/janicas/Documents/Universidade/5ºAno/IC/bit_stream/bin/wav_quant_enc 
