@@ -6,7 +6,7 @@
 
 // --- DEFINE YOUR FOLDER PATHS HERE ---
 // Note the trailing slash '/'
-const std::string INPUT_DIR = "imagens PPM/";
+const std::string INPUT_DIR = "imagens_PPM/";
 const std::string OUTPUT_DIR = "Result_Images/";
 
 /**
