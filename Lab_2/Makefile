@@ -19,21 +19,24 @@ LDLIBS = -lopencv_core -lopencv_imgcodecs -lopencv_highgui
 # --- Targets ---
 TARGET_1_1 = 1.1_extract_channel
 TARGET_1_2 = 1.2_image_ops
-TARGET_2_1 = 2.1_golomb_test # <-- NEW: Target for Part 2 test
+TARGET_2_1 = 2.1_golomb_test
+TARGET_5 = image_codec
 
 # --- Source Files ---
 SRCS_1_1 = extract_channel.cpp
 SRCS_1_2 = image_operations.cpp
-SRCS_2_1 = main_part2.cpp golomb.cpp bitstream.cpp # <-- NEW: All sources for Part 2
+SRCS_2_1 = main_part2.cpp golomb.cpp bitstream.cpp
+SRCS_5 = image_codec.cpp golomb.cpp bitstream.cpp
 
 # --- Object Files ---
 # This converts the .cpp list from SRCS_2_1 into a .o list (e.g., main_part2.o)
 # This is the standard way to handle multi-file projects in 'make'
-OBJS_2_1 = $(SRCS_2_1:.cpp=.o) # <-- NEW
+OBJS_2_1 = $(SRCS_2_1:.cpp=.o) 
+OBJS_5 = $(SRCS_5:.cpp=.o)
 
 
 # Default rule: build all targets
-all: $(TARGET_1_1) $(TARGET_1_2) $(TARGET_2_1) # <-- NEW: Added 2.1
+all: $(TARGET_1_1) $(TARGET_1_2) $(TARGET_2_1) $(TARGET_5)
 
 # --- Rules for Part 1 (OpenCV) ---
 $(TARGET_1_1): $(SRCS_1_1)
@@ -56,10 +59,12 @@ $(TARGET_1_2): $(SRCS_1_2)
 $(TARGET_2_1): $(OBJS_2_1)
 	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(TARGET_2_1) $(OBJS_2_1) $(LDLIBS) # <-- NEW: "link" rule
 
+$(TARGET_5): $(OBJS_5)
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) -o $(TARGET_5) $(OBJS_5) $(LDLIBS)
 
 # Rule to clean up build files and result images
 clean:
 	# Updated to clean all targets and the new .o files
-	rm -f $(TARGET_1_1) $(TARGET_1_2) $(TARGET_2_1)
+	rm -f $(TARGET_1_1) $(TARGET_1_2) $(TARGET_2_1) $(TARGET_5)
 	rm -f *.o
 	rm -f Result_Images/*
