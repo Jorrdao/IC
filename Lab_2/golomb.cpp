@@ -49,12 +49,15 @@ void GolombCoder::encodeUnsigned(BitStreamWriter& writer, unsigned int n) {
     }
 
     // General Golomb code for remainder
-    if (r < t) {
+    // CORRIGIDO: Cast explícito para unsigned para evitar comparação signed/unsigned
+    unsigned int t_unsigned = static_cast<unsigned int>(t);
+    
+    if (r < t_unsigned) {
         // r < (2^b - m), encode r using (b-1) bits
         writer.writeBits(r, b - 1);
     } else {
         // r >= (2^b - m), encode (r + t) using b bits
-        writer.writeBits(r + t, b);
+        writer.writeBits(r + t_unsigned, b);
     }
 }
 
@@ -97,14 +100,21 @@ unsigned int GolombCoder::decodeUnsigned(BitStreamReader& reader) {
     // Read the first (b-1) bits
     unsigned int r_part1 = reader.readBits(b - 1);
 
-    if (r_part1 < t) {
+    // CORRIGIDO: Cast explícito para unsigned para evitar comparação signed/unsigned
+    unsigned int t_unsigned = static_cast<unsigned int>(t);
+    
+    if (r_part1 < t_unsigned) {
         // Remainder was encoded with (b-1) bits
         r = r_part1;
     } else {
         // Remainder was encoded with b bits. Read the last bit.
         int r_part2_bit = reader.readBit();
+        if (r_part2_bit == -1) {
+            // End of stream - erro, mas retorna o que tem
+            return q * m + r_part1;
+        }
         unsigned int combined_r = (r_part1 << 1) | r_part2_bit;
-        r = combined_r - t;
+        r = combined_r - t_unsigned;
     }
 
     return q * m + r;
