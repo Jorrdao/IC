@@ -48,10 +48,10 @@ int main(int argc, char* argv[]) {
     size_t data_start = 8 + header_size; 
     
     std::cout << "Header JSON: " << header_size << " bytes\n";
-    std::cout << "Dados Reais começam em: " << data_start << "\n";
+    std::cout << "Real data starts at: " << data_start << "\n";
 
     if (data_start >= total_size) {
-        std::cerr << "Erro: Header maior que o ficheiro!\n";
+        std::cerr << "Error: Header larger than file!\n";
         return 1;
     }
 
@@ -72,10 +72,10 @@ int main(int argc, char* argv[]) {
     size_t c_size = ZSTD_compress(compressed.data(), bound, processed_data.data(), data_len, 3);
 
     // 4. Resultados Reais
-    std::cout << "\n--- RESULTADOS FINAIS (BF16 DATA) ---\n";
-    printf("Tamanho Original (Dados): %.2f MB\n", (double)data_len / (1024*1024));
-    printf("Tamanho Comprimido:       %.2f MB\n", (double)c_size / (1024*1024));
-    printf("Ratio de Compressão:      %.2f%%\n", (1.0 - (double)c_size / data_len) * 100.0);
+    std::cout << "\n--- FINAL RESULTS (BF16 DATA) ---\n";
+    printf("Original Data Size:       %.2f MB\n", (double)data_len / (1024*1024));
+    printf("Compressed Size:          %.2f MB\n", (double)c_size / (1024*1024));
+    printf("Compression Ratio:        %.2f%%\n", (1.0 - (double)c_size / data_len) * 100.0);
 
     return 0;
 }

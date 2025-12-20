@@ -142,45 +142,44 @@ Result test_gzip(const std::vector<char>& data, int level) {
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cout << "Uso: ./multi_compress <ficheiro.safetensors>\n";
+        std::cout << "Use: ./multi_compress <file.safetensors>\n";
         return 1;
     }
     
     std::string filename = argv[1];
     
     std::cout << "\n" << std::string(80, '=') << "\n";
-    std::cout << "🧪 TESTE DE MÚLTIPLOS COMPRESSORES\n";
+    std::cout << " Multiple compressors test\n";
     std::cout << std::string(80, '=') << "\n\n";
     
     // Ler ficheiro
-    std::cout << "📖 A ler ficheiro...\n";
+    std::cout << " Reading file...\n";
     auto data = read_file(filename);
     size_t original_size = data.size();
     
-    std::cout << "📦 Tamanho: " << original_size / (1024.0 * 1024 * 1024) << " GB\n\n";
+    std::cout << " Size: " << original_size / (1024.0 * 1024 * 1024) << " GB\n\n";
     
     std::vector<Result> results;
     
     // Testar Zstd
-    std::cout << "⏳ Testando Zstd...\n";
+    std::cout << " Testing Zstd...\n";
     results.push_back(test_zstd(data, 1));
     std::cout << "   Level 1: " << results.back().ratio << "%\n";
     results.push_back(test_zstd(data, 10));
     std::cout << "   Level 10: " << results.back().ratio << "%\n";
     results.push_back(test_zstd(data, 19));
     std::cout << "   Level 19: " << results.back().ratio << "%\n";
-    results.push_back(test_zstd(data, 22));
-    std::cout << "   Level 22: " << results.back().ratio << "%\n";
+    
     
     // Testar LZMA
-    std::cout << "\n⏳ Testando LZMA...\n";
+    std::cout << "\n Testing LZMA...\n";
     results.push_back(test_lzma(data, 6));
     std::cout << "   Level 6: " << results.back().ratio << "%\n";
     results.push_back(test_lzma(data, 9));
     std::cout << "   Level 9: " << results.back().ratio << "%\n";
     
     // Testar Gzip
-    std::cout << "\n⏳ Testando Gzip...\n";
+    std::cout << "\n Testing Gzip...\n";
     results.push_back(test_gzip(data, 6));
     std::cout << "   Level 6: " << results.back().ratio << "%\n";
     results.push_back(test_gzip(data, 9));
@@ -188,7 +187,7 @@ int main(int argc, char* argv[]) {
     
     // Relatório
     std::cout << "\n" << std::string(80, '=') << "\n";
-    std::cout << "📊 RESULTADOS COMPARATIVOS\n";
+    std::cout << "Comparative Results\n";
     std::cout << std::string(80, '=') << "\n\n";
     
     std::cout << "Compressor     Ratio      Size(GB)   Comp(s)    Decomp(s)  MB/s\n";
@@ -209,8 +208,8 @@ int main(int argc, char* argv[]) {
     auto fastest = *std::min_element(results.begin(), results.end(),
         [](const Result& a, const Result& b) { return a.compress_time < b.compress_time; });
     
-    std::cout << "\n🏆 Melhor compressão: " << best_ratio.name << " → " << best_ratio.ratio << "%\n";
-    std::cout << "⚡ Mais rápido: " << fastest.name << " → " << fastest.compress_time << "s\n";
+    std::cout << "\nBest compression: " << best_ratio.name << " → " << best_ratio.ratio << "%\n";
+    std::cout << "⚡ Fastest: " << fastest.name << " → " << fastest.compress_time << "s\n";
     
     return 0;
 }

@@ -9,8 +9,8 @@
 #include <chrono>
 #include <iomanip>
 #include <sstream>
+#include <omp.h>
 
-// Estrutura para guardar metadados de quantização
 struct QuantMeta {
     float min_val;
     float max_val;
@@ -18,326 +18,295 @@ struct QuantMeta {
     float zero_point;
 };
 
+enum CompressionMode : uint8_t {
+    MODE_LOSSLESS_SMART = 1,
+    MODE_LOSSY_INT8 = 2
+};
+
 class MLCompressor {
 private:
-    static constexpr size_t CHUNK_SIZE = 4 * 1024 * 1024; // 4MB
-    
-    // Converter BF16 para float
     float bf16_to_float(uint16_t bf16) {
         uint32_t bits = static_cast<uint32_t>(bf16) << 16;
         float result;
         std::memcpy(&result, &bits, sizeof(float));
         return result;
     }
-    
-    // Converter float para BF16
+
     uint16_t float_to_bf16(float f) {
         uint32_t bits;
         std::memcpy(&bits, &f, sizeof(float));
         return static_cast<uint16_t>(bits >> 16);
     }
-    
-    // Quantizar float32 para int8
+
+    // --- NEW: PARALLEL SHUFFLE ---
+    void byte_shuffle(std::vector<char>& data) {
+        if (data.size() % 2 != 0) return;
+        size_t half = data.size() / 2;
+        std::vector<char> temp = data;
+        
+        // OpenMP Parallelization for Memory Movement
+        #pragma omp parallel for schedule(static)
+        for (size_t i = 0; i < half; i++) {
+            data[i] = temp[2 * i];            // Low Bytes
+            data[half + i] = temp[2 * i + 1]; // High Bytes
+        }
+    }
+
+    void byte_unshuffle(std::vector<char>& data) {
+        if (data.size() % 2 != 0) return;
+        size_t half = data.size() / 2;
+        std::vector<char> temp = data;
+        
+        #pragma omp parallel for schedule(static)
+        for (size_t i = 0; i < half; i++) {
+            data[2 * i] = temp[i];
+            data[2 * i + 1] = temp[half + i];
+        }
+    }
+
     int8_t quantize(float value, const QuantMeta& meta) {
-        float scaled = (value - meta.zero_point) / meta.scale;
+        // Clamp input to the meta range before scaling to avoid wrapping
+        float clamped = std::clamp(value, meta.min_val, meta.max_val);
+        float scaled = (clamped - meta.zero_point) / meta.scale;
         return static_cast<int8_t>(std::clamp(scaled, -128.0f, 127.0f));
     }
-    
-    // Dequantizar int8 para float32
+
     float dequantize(int8_t qval, const QuantMeta& meta) {
         return qval * meta.scale + meta.zero_point;
     }
-    
-    // Calcular metadados de quantização
+
+    // --- IMPROVED: SMART RANGE SELECTION ---
     QuantMeta compute_quant_meta(const std::vector<float>& values) {
         QuantMeta meta;
-        meta.min_val = *std::min_element(values.begin(), values.end());
-        meta.max_val = *std::max_element(values.begin(), values.end());
+        
+        // Calculate Mean and StdDev to detect outliers
+        double sum = 0, sq_sum = 0;
+        for(float v : values) { sum += v; sq_sum += v*v; }
+        double mean = sum / values.size();
+        double variance = (sq_sum / values.size()) - (mean * mean);
+        double stddev = std::sqrt(std::max(0.0, variance));
+
+        // Clip range to Mean +/- 3 Sigma (covers 99.7% of data)
+        // This ignores extreme outliers that ruin quantization resolution
+        float sigma_limit = 3.5f; // Adjustable
+        meta.min_val = static_cast<float>(mean - sigma_limit * stddev);
+        meta.max_val = static_cast<float>(mean + sigma_limit * stddev);
+        
+        // Fallback: If range is too small (constant block), use real min/max
+        auto minmax = std::minmax_element(values.begin(), values.end());
+        if (meta.min_val > *minmax.first) meta.min_val = *minmax.first;
+        if (meta.max_val < *minmax.second) meta.max_val = *minmax.second;
+
+        if (meta.max_val == meta.min_val) meta.max_val += 1e-6f;
+        
         meta.scale = (meta.max_val - meta.min_val) / 255.0f;
         meta.zero_point = meta.min_val;
         return meta;
     }
-    
-    // Delta encoding para int8
+
     void delta_encode(std::vector<int8_t>& data) {
-        for (size_t i = data.size() - 1; i > 0; --i) {
-            data[i] = data[i] - data[i - 1];
-        }
+        for (size_t i = data.size() - 1; i > 0; --i) data[i] -= data[i - 1];
     }
-    
-    // Delta decoding
+
     void delta_decode(std::vector<int8_t>& data) {
-        for (size_t i = 1; i < data.size(); ++i) {
-            data[i] = data[i] + data[i - 1];
-        }
+        for (size_t i = 1; i < data.size(); ++i) data[i] += data[i - 1];
     }
-    
+
 public:
-    bool compress(const std::string& input_file, const std::string& output_file) {
+    bool compress(const std::string& input_file, const std::string& output_file, CompressionMode mode, float prune_threshold = 0.0f) {
         auto start_total = std::chrono::high_resolution_clock::now();
-        
-        // Ler ficheiro
+
         std::ifstream in(input_file, std::ios::binary | std::ios::ate);
-        if (!in) {
-            std::cerr << "Erro ao abrir: " << input_file << std::endl;
-            return false;
-        }
-        
+        if (!in) { std::cerr << " Erro: Input file.\n"; return false; }
         size_t file_size = in.tellg();
         in.seekg(0);
-        
-        // Ler header size (primeiros 8 bytes)
+
         uint64_t header_size;
         in.read(reinterpret_cast<char*>(&header_size), 8);
-        
-        std::cout << "Header JSON: " << header_size << " bytes" << std::endl;
-        
-        // Ler header (JSON)
         std::vector<char> header(header_size);
         in.read(header.data(), header_size);
-        
-        // Calcular tamanho dos dados
         size_t data_size = file_size - 8 - header_size;
-        size_t num_bf16 = data_size / 2;
         
-        std::cout << "Dados BF16: " << data_size << " bytes (" << num_bf16 << " valores)" << std::endl;
-        std::cout << "\nFase 1: Converter BF16 -> Float32..." << std::endl;
+        std::cout << " Data: " << formatSize(data_size) << "\n";
         
-        // Ler e converter BF16 -> Float32
-        std::vector<uint16_t> bf16_data(num_bf16);
-        in.read(reinterpret_cast<char*>(bf16_data.data()), data_size);
-        in.close();
-        
-        std::vector<float> float_data(num_bf16);
-        for (size_t i = 0; i < num_bf16; ++i) {
-            float_data[i] = bf16_to_float(bf16_data[i]);
-            if (i % (num_bf16 / 20) == 0) {
-                std::cout << "." << std::flush;
-            }
-        }
-        bf16_data.clear(); // Libertar memória
-        
-        std::cout << "\n\nFase 2: Quantizar Float32 -> INT8..." << std::endl;
-        
-        // Processar em blocos de 1M valores
-        size_t block_size = 1024 * 1024;
-        std::vector<QuantMeta> metas;
-        std::vector<int8_t> quantized;
-        quantized.reserve(num_bf16);
-        
-        for (size_t i = 0; i < num_bf16; i += block_size) {
-            size_t current_block = std::min(block_size, num_bf16 - i);
-            std::vector<float> block(float_data.begin() + i, 
-                                     float_data.begin() + i + current_block);
-            
-            QuantMeta meta = compute_quant_meta(block);
-            metas.push_back(meta);
-            
-            for (float val : block) {
-                quantized.push_back(quantize(val, meta));
-            }
-            
-            if ((i / block_size) % 10 == 0) {
-                std::cout << "." << std::flush;
-            }
-        }
-        float_data.clear();
-        
-        std::cout << "\n\nFase 3: Delta encoding..." << std::endl;
-        delta_encode(quantized);
-        
-        std::cout << "Fase 4: Comprimir com Zstandard..." << std::endl;
-        
-        // Abrir output
         std::ofstream out(output_file, std::ios::binary);
-        if (!out) {
-            std::cerr << "Erro ao criar: " << output_file << std::endl;
-            return false;
-        }
-        
-        // Escrever formato: [header_size][header][num_blocks][metas][compressed_data]
         out.write(reinterpret_cast<char*>(&header_size), 8);
         out.write(header.data(), header_size);
-        
-        uint64_t num_blocks = metas.size();
-        out.write(reinterpret_cast<char*>(&num_blocks), 8);
-        out.write(reinterpret_cast<char*>(metas.data()), metas.size() * sizeof(QuantMeta));
-        
-        // Comprimir quantized data
-        size_t compressed_bound = ZSTD_compressBound(quantized.size());
-        std::vector<char> compressed(compressed_bound);
-        
-        size_t compressed_size = ZSTD_compress(
-            compressed.data(), compressed.size(),
-            quantized.data(), quantized.size(),
-            15); // Nível moderado
-        
-        if (ZSTD_isError(compressed_size)) {
-            std::cerr << "Erro ao comprimir: " << ZSTD_getErrorName(compressed_size) << std::endl;
-            return false;
+        out.put(static_cast<char>(mode));
+
+        std::vector<char> compressed_payload;
+
+        if (mode == MODE_LOSSLESS_SMART) {
+            std::cout << " Mode: SMART LOSSLESS (Parallel Shuffle)\n";
+            std::vector<char> raw_data(data_size);
+            in.read(raw_data.data(), data_size);
+            
+            byte_shuffle(raw_data); // Now Multithreaded!
+            
+            size_t bound = ZSTD_compressBound(data_size);
+            compressed_payload.resize(bound);
+            size_t csize = ZSTD_compress(compressed_payload.data(), bound, raw_data.data(), data_size, 10);
+            compressed_payload.resize(csize);
+
+        } else if (mode == MODE_LOSSY_INT8) {
+            std::cout << " Mode: LOSSY INT8 (Sigma Clipping + OpenMP)\n";
+            size_t num_bf16 = data_size / 2;
+            std::vector<uint16_t> bf16_data(num_bf16);
+            in.read(reinterpret_cast<char*>(bf16_data.data()), data_size);
+
+            std::vector<int8_t> quantized(num_bf16);
+            size_t block_size = 1024 * 1024;
+            size_t num_blocks = (num_bf16 + block_size - 1) / block_size;
+            std::vector<QuantMeta> metas(num_blocks);
+
+            #pragma omp parallel for schedule(dynamic)
+            for (size_t k = 0; k < num_blocks; ++k) {
+                size_t start_idx = k * block_size;
+                size_t end_idx = std::min(start_idx + block_size, num_bf16);
+                size_t len = end_idx - start_idx;
+                std::vector<float> fblock; fblock.reserve(len);
+                
+                for(size_t j=0; j<len; ++j) {
+                    float val = bf16_to_float(bf16_data[start_idx+j]);
+                    if (std::abs(val) < prune_threshold) val = 0.0f;
+                    fblock.push_back(val);
+                }
+
+                QuantMeta meta = compute_quant_meta(fblock); // Uses new Sigma Clipping
+                metas[k] = meta;
+
+                for (size_t j=0; j<len; ++j) {
+                    quantized[start_idx+j] = quantize(fblock[j], meta);
+                }
+            }
+
+            delta_encode(quantized);
+
+            // Write Metas
+            uint64_t nb = metas.size();
+            out.write((char*)&nb, 8);
+            out.write((char*)metas.data(), metas.size() * sizeof(QuantMeta));
+
+            // Compress
+            size_t bound = ZSTD_compressBound(quantized.size());
+            compressed_payload.resize(bound);
+            size_t csize = ZSTD_compress(compressed_payload.data(), bound, quantized.data(), quantized.size(), 19);
+            compressed_payload.resize(csize);
         }
+
+        uint64_t c_size = compressed_payload.size();
+        out.write((char*)&c_size, 8);
+        out.write(compressed_payload.data(), c_size);
+
+        auto end = std::chrono::high_resolution_clock::now();
+        size_t final_size = out.tellp();
+        double ratio = (1.0 - (double)final_size / file_size) * 100.0;
         
-        uint64_t comp_size = compressed_size;
-        out.write(reinterpret_cast<char*>(&comp_size), 8);
-        out.write(compressed.data(), compressed_size);
-        
-        out.close();
-        
-        auto end_total = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::seconds>(end_total - start_total);
-        
-        size_t output_size = 8 + header_size + 8 + metas.size() * sizeof(QuantMeta) + 8 + compressed_size;
-        double ratio = 100.0 * (1.0 - (double)output_size / file_size);
-        
-        std::cout << "\n\n=== RESULTADO ===" << std::endl;
-        std::cout << "Original:        " << formatSize(file_size) << std::endl;
-        std::cout << "Comprimido:      " << formatSize(output_size) << std::endl;
-        std::cout << "  - Header:      " << formatSize(8 + header_size) << std::endl;
-        std::cout << "  - Metadados:   " << formatSize(8 + metas.size() * sizeof(QuantMeta)) << std::endl;
-        std::cout << "  - Dados:       " << formatSize(8 + compressed_size) << std::endl;
-        std::cout << "Taxa:            " << std::fixed << std::setprecision(2) << ratio << "%" << std::endl;
-        std::cout << "Tempo:           " << duration.count() << " s" << std::endl;
-        std::cout << "\nNOTA: Compressão com perda (quantização INT8)" << std::endl;
-        
+        std::cout << "Done. Ratio: " << std::fixed << std::setprecision(2) << ratio << "% Time: " 
+                  << std::chrono::duration<double>(end - start_total).count() << "s\n";
         return true;
     }
-    
+
     bool decompress(const std::string& input_file, const std::string& output_file) {
-        auto start = std::chrono::high_resolution_clock::now();
-        
         std::ifstream in(input_file, std::ios::binary);
-        if (!in) {
-            std::cerr << "Erro ao abrir: " << input_file << std::endl;
-            return false;
-        }
-        
-        // Ler header
+        if (!in) return false;
+
         uint64_t header_size;
-        in.read(reinterpret_cast<char*>(&header_size), 8);
-        
+        in.read((char*)&header_size, 8);
         std::vector<char> header(header_size);
         in.read(header.data(), header_size);
-        
-        // Ler metadados
-        uint64_t num_blocks;
-        in.read(reinterpret_cast<char*>(&num_blocks), 8);
-        
-        std::vector<QuantMeta> metas(num_blocks);
-        in.read(reinterpret_cast<char*>(metas.data()), num_blocks * sizeof(QuantMeta));
-        
-        // Ler dados comprimidos
-        uint64_t compressed_size;
-        in.read(reinterpret_cast<char*>(&compressed_size), 8);
-        
-        std::vector<char> compressed(compressed_size);
-        in.read(compressed.data(), compressed_size);
-        in.close();
-        
-        std::cout << "Descomprimindo..." << std::endl;
-        
-        // Descomprimir
-        size_t decompressed_size = ZSTD_getFrameContentSize(compressed.data(), compressed_size);
-        std::vector<int8_t> quantized(decompressed_size);
-        
-        size_t result = ZSTD_decompress(
-            quantized.data(), quantized.size(),
-            compressed.data(), compressed_size);
-        
-        if (ZSTD_isError(result)) {
-            std::cerr << "Erro ao descomprimir: " << ZSTD_getErrorName(result) << std::endl;
-            return false;
-        }
-        
-        // Delta decode
-        delta_decode(quantized);
-        
-        // Dequantizar
-        std::vector<uint16_t> bf16_data;
-        bf16_data.reserve(quantized.size());
-        
-        size_t block_size = 1024 * 1024;
-        for (size_t i = 0; i < quantized.size(); i += block_size) {
-            size_t current_block = std::min(block_size, quantized.size() - i);
-            size_t meta_idx = i / block_size;
-            const QuantMeta& meta = metas[meta_idx];
-            
-            for (size_t j = 0; j < current_block; ++j) {
-                float val = dequantize(quantized[i + j], meta);
-                bf16_data.push_back(float_to_bf16(val));
+
+        char mode_byte; in.get(mode_byte);
+        CompressionMode mode = static_cast<CompressionMode>(mode_byte);
+
+        std::vector<char> final_data;
+
+        if (mode == MODE_LOSSLESS_SMART) {
+            uint64_t c_size; in.read((char*)&c_size, 8);
+            std::vector<char> compressed(c_size);
+            in.read(compressed.data(), c_size);
+            unsigned long long orig_size = ZSTD_getFrameContentSize(compressed.data(), c_size);
+            final_data.resize(orig_size);
+            ZSTD_decompress(final_data.data(), orig_size, compressed.data(), c_size);
+            byte_unshuffle(final_data); // Parallel Unshuffle
+        } 
+        else if (mode == MODE_LOSSY_INT8) {
+            uint64_t num_blocks; in.read((char*)&num_blocks, 8);
+            std::vector<QuantMeta> metas(num_blocks);
+            in.read((char*)metas.data(), num_blocks * sizeof(QuantMeta));
+
+            uint64_t c_size; in.read((char*)&c_size, 8);
+            std::vector<char> compressed(c_size);
+            in.read(compressed.data(), c_size);
+
+            size_t num_elements = ZSTD_getFrameContentSize(compressed.data(), c_size);
+            std::vector<int8_t> quantized(num_elements);
+            ZSTD_decompress(quantized.data(), num_elements, compressed.data(), c_size);
+            delta_decode(quantized);
+
+            final_data.resize(num_elements * 2);
+            uint16_t* bf16_ptr = reinterpret_cast<uint16_t*>(final_data.data());
+            size_t block_size = 1024 * 1024;
+
+            #pragma omp parallel for schedule(dynamic)
+            for (size_t i = 0; i < num_elements; ++i) {
+                float val = dequantize(quantized[i], metas[std::min(i/block_size, metas.size()-1)]);
+                bf16_ptr[i] = float_to_bf16(val);
             }
         }
-        
-        // Escrever output
+
         std::ofstream out(output_file, std::ios::binary);
-        out.write(reinterpret_cast<char*>(&header_size), 8);
+        out.write((char*)&header_size, 8);
         out.write(header.data(), header_size);
-        out.write(reinterpret_cast<char*>(bf16_data.data()), bf16_data.size() * 2);
-        out.close();
-        
-        auto end = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::seconds>(end - start);
-        
-        std::cout << "Descompressão concluída em " << duration.count() << " s" << std::endl;
-        
+        out.write(final_data.data(), final_data.size());
         return true;
     }
-    
-private:
-    std::string formatSize(size_t bytes) {
-        const char* units[] = {"B", "KB", "MB", "GB"};
-        int unit = 0;
-        double size = bytes;
+
+    void calculate_error(const std::string& original, const std::string& restored) {
+        std::ifstream f1(original, std::ios::binary);
+        std::ifstream f2(restored, std::ios::binary);
         
-        while (size >= 1024 && unit < 3) {
-            size /= 1024;
-            unit++;
+        // Skip headers
+        uint64_t h1; f1.read((char*)&h1, 8); f1.seekg(8+h1);
+        uint64_t h2; f2.read((char*)&h2, 8); f2.seekg(8+h2);
+
+        double total_sq_error = 0;
+        size_t count = 0;
+        std::vector<uint16_t> buf1(1024*1024), buf2(1024*1024);
+
+        while(f1 && f2) {
+            f1.read((char*)buf1.data(), buf1.size()*2);
+            f2.read((char*)buf2.data(), buf2.size()*2);
+            size_t n = f1.gcount()/2;
+            if(n==0) break;
+            
+            for(size_t i=0; i<n; i++) {
+                float v1 = bf16_to_float(buf1[i]);
+                float v2 = bf16_to_float(buf2[i]);
+                double diff = v1 - v2;
+                total_sq_error += diff * diff;
+                count++;
+            }
         }
-        
+        double mse = total_sq_error / count;
+        std::cout << "\n MSE: " << mse << " (Lower is better)\n";
+    }
+
+    std::string formatSize(size_t bytes) {
         std::ostringstream oss;
-        oss << std::fixed << std::setprecision(2) << size << " " << units[unit];
+        oss << std::fixed << std::setprecision(2) << (bytes / (1024.0*1024.0)) << " MB";
         return oss.str();
     }
 };
 
 int main(int argc, char* argv[]) {
-    if (argc < 3) {
-        std::cout << "Compressor ML para Safetensors (com quantização INT8)" << std::endl;
-        std::cout << "\nUso: " << argv[0] << " <c|d> <entrada> [saida]" << std::endl;
-        std::cout << "\nModos:" << std::endl;
-        std::cout << "  c - Comprimir (BF16 -> INT8 + Delta + Zstd)" << std::endl;
-        std::cout << "  d - Descomprimir (restaurar BF16)" << std::endl;
-        std::cout << "\nAVISO: Compressão com PERDA (quantização INT8)" << std::endl;
-        std::cout << "       Precisão reduzida mas modelo ainda funcional" << std::endl;
-        std::cout << "\nExemplos:" << std::endl;
-        std::cout << "  " << argv[0] << " c model.safetensors model.mlc" << std::endl;
-        std::cout << "  " << argv[0] << " d model.mlc model_restored.safetensors" << std::endl;
-        return 1;
-    }
-    
-    std::string mode = argv[1];
-    std::string input = argv[2];
-    std::string output = (argc > 3) ? argv[3] : "";
-    
+    if (argc < 3) return 1;
     MLCompressor comp;
+    std::string mode = argv[1];
     
-    if (mode == "c") {
-        if (output.empty()) output = input + ".mlc";
-        std::cout << "=== COMPRESSÃO ML ===" << std::endl;
-        std::cout << "Input:  " << input << std::endl;
-        std::cout << "Output: " << output << std::endl;
-        std::cout << "\nEsta compressão usa quantização INT8 (com perda)" << std::endl;
-        std::cout << "O modelo perde alguma precisão mas mantém funcionalidade\n" << std::endl;
-        return !comp.compress(input, output);
-        
-    } else if (mode == "d") {
-        if (output.empty()) output = "restored_" + input;
-        std::cout << "Descompressão: " << input << " -> " << output << std::endl;
-        return !comp.decompress(input, output);
-        
-    } else {
-        std::cerr << "Modo inválido! Use 'c' ou 'd'" << std::endl;
-        return 1;
-    }
-    
+    if (mode == "l") comp.compress(argv[2], (argc>3?argv[3]:"out.mlc"), MODE_LOSSLESS_SMART);
+    else if (mode == "q") comp.compress(argv[2], (argc>3?argv[3]:"out.mlc"), MODE_LOSSY_INT8, (argc>4?std::stof(argv[4]):0.0f));
+    else if (mode == "d") comp.decompress(argv[2], (argc>3?argv[3]:"restored.safetensors"));
+    else if (mode == "v") comp.calculate_error(argv[2], argv[3]);
     return 0;
 }

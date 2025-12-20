@@ -39,7 +39,7 @@ double calculate_entropy(const std::vector<uint8_t>& data, size_t sample_size) {
 }
 
 void analyze_data_patterns(const std::vector<uint8_t>& data, size_t sample_size) {
-    std::cout << "\n📊 ANÁLISE DE PADRÕES:\n";
+    std::cout << "\n Pattern analyzis:\n";
     std::cout << std::string(70, '-') << "\n";
     
     size_t to_analyze = std::min(sample_size, data.size());
@@ -51,7 +51,7 @@ void analyze_data_patterns(const std::vector<uint8_t>& data, size_t sample_size)
     }
     
     double zero_ratio = (zero_count * 100.0) / to_analyze;
-    std::cout << "🔢 Zeros: " << zero_ratio << "%\n";
+    std::cout << " Zeros: " << zero_ratio << "%\n";
     
     // Valores únicos
     std::map<uint8_t, size_t> unique_values;
@@ -59,16 +59,16 @@ void analyze_data_patterns(const std::vector<uint8_t>& data, size_t sample_size)
         unique_values[data[i]]++;
     }
     
-    std::cout << "🎯 Valores únicos (em " << to_analyze << " bytes): " 
+    std::cout << " Unique vlues (in " << to_analyze << " bytes): " 
               << unique_values.size() << "/256\n";
     
     // Entropia
     double entropy = calculate_entropy(data, sample_size);
-    std::cout << "📈 Entropia: " << std::fixed << std::setprecision(4) 
+    std::cout << "Entropy: " << std::fixed << std::setprecision(4) 
               << entropy << " bits/byte (max=8.0)\n";
     
     double theoretical_compression = entropy / 8.0 * 100.0;
-    std::cout << "💡 Compressão teórica mínima: " << theoretical_compression << "%\n";
+    std::cout << " Theoretical minimal compression: " << theoretical_compression << "%\n";
     
     // Repetições consecutivas
     size_t consecutive_same = 0;
@@ -77,7 +77,7 @@ void analyze_data_patterns(const std::vector<uint8_t>& data, size_t sample_size)
     }
     
     double repeat_ratio = (consecutive_same * 100.0) / to_analyze;
-    std::cout << "🔁 Repetições consecutivas: " << repeat_ratio << "%\n";
+    std::cout << "Consecutive repeats: " << repeat_ratio << "%\n";
     
     // Top 10 valores mais frequentes
     std::vector<std::pair<size_t, uint8_t>> freq_vec;
@@ -86,11 +86,11 @@ void analyze_data_patterns(const std::vector<uint8_t>& data, size_t sample_size)
     }
     std::sort(freq_vec.rbegin(), freq_vec.rend());
     
-    std::cout << "\n📊 Top 10 valores mais frequentes:\n";
+    std::cout << "\n Top 10 most frequent values:\n";
     for (size_t i = 0; i < std::min(size_t(10), freq_vec.size()); i++) {
         double percent = (freq_vec[i].first * 100.0) / to_analyze;
         std::cout << "   " << (int)freq_vec[i].second << ": " 
-                  << freq_vec[i].first << " vezes (" << percent << "%)\n";
+                  << freq_vec[i].first << " times (" << percent << "%)\n";
     }
 }
 
@@ -98,7 +98,7 @@ void analyze_float_distribution(const std::vector<uint8_t>& data, size_t sample_
     // Analisar como floats
     if (data.size() < 4) return;
     
-    std::cout << "\n🔢 ANÁLISE DE FLOATS (F32):\n";
+    std::cout << "\n FLOAT ANALYSIS (F32):\n";
     std::cout << std::string(70, '-') << "\n";
     
     size_t num_floats = std::min(sample_size / 4, data.size() / 4);
@@ -122,29 +122,29 @@ void analyze_float_distribution(const std::vector<uint8_t>& data, size_t sample_
     
     double mean = sum / num_floats;
     
-    std::cout << "📉 Min: " << min_val << "\n";
-    std::cout << "📈 Max: " << max_val << "\n";
-    std::cout << "➗ Mean: " << mean << "\n";
-    std::cout << "🔢 Zeros: " << (zero_floats * 100.0 / num_floats) << "%\n";
-    std::cout << "🔢 Pequenos (|x|<0.01): " << (small_floats * 100.0 / num_floats) << "%\n";
+    std::cout << " Min: " << min_val << "\n";
+    std::cout << " Max: " << max_val << "\n";
+    std::cout << " Mean: " << mean << "\n";
+    std::cout << " Zeros: " << (zero_floats * 100.0 / num_floats) << "%\n";
+    std::cout << " Small (|x|<0.01): " << (small_floats * 100.0 / num_floats) << "%\n";
     
     // Potencial de quantização
     float range = max_val - min_val;
-    std::cout << "\n💡 POTENCIAL DE QUANTIZAÇÃO:\n";
+    std::cout << "\n Quantization Potential:\n";
     std::cout << "   Range: " << range << "\n";
     
     // F32 → F16
-    std::cout << "   F32→F16: 50% redução garantida + compressão\n";
+    std::cout << "   F32→F16: 50% reduction guaranteed + compression\n";
     
     // F32 → INT8
     float int8_quantization_error = range / 255.0;
-    std::cout << "   F32→INT8: 75% redução, erro quantização ≈ " 
+    std::cout << "   F32→INT8: 75% reduction, quantization error ≈ " 
               << int8_quantization_error << "\n";
 }
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cout << "Uso: ./analyze <ficheiro.safetensors>\n";
+        std::cout << "Usage: ./analyze <file.safetensors>\n";
         return 1;
     }
     
@@ -152,7 +152,7 @@ int main(int argc, char* argv[]) {
     std::ifstream file(filename, std::ios::binary);
     
     if (!file) {
-        std::cerr << "❌ Erro ao abrir ficheiro: " << filename << "\n";
+        std::cerr << " Error opening the file: " << filename << "\n";
         return 1;
     }
     
@@ -162,30 +162,30 @@ int main(int argc, char* argv[]) {
     file.seekg(0, std::ios::beg);
     
     std::cout << "\n" << std::string(70, '=') << "\n";
-    std::cout << "📊 ANÁLISE DETALHADA DO FICHEIRO\n";
+    std::cout << " DETAILED FILE ANALYSIS\n";
     std::cout << std::string(70, '=') << "\n";
-    std::cout << "📁 Ficheiro: " << filename << "\n";
-    std::cout << "📦 Tamanho: " << file_size / (1024.0 * 1024 * 1024) << " GB\n";
+    std::cout << " File: " << filename << "\n";
+    std::cout << " Size: " << file_size / (1024.0 * 1024 * 1024) << " GB\n";
     
-    // Ler cabeçalho
+    // Read header
     uint64_t header_size;
     file.read(reinterpret_cast<char*>(&header_size), 8);
     
     std::vector<char> header(header_size);
     file.read(header.data(), header_size);
     
-    std::cout << "📄 Cabeçalho: " << header_size / 1024.0 << " KB\n";
+    std::cout << "Header: " << header_size / 1024.0 << " KB\n";
     
-    // Ler dados
+    // Read data
     size_t data_size = file_size - 8 - header_size;
-    std::cout << "📊 Dados: " << data_size / (1024.0 * 1024 * 1024) << " GB\n";
+    std::cout << " Data: " << data_size / (1024.0 * 1024 * 1024) << " GB\n";
     
     // Ler amostra dos dados (primeiros 100MB ou menos)
     size_t sample_size = std::min(size_t(100 * 1024 * 1024), data_size);
     std::vector<uint8_t> sample(sample_size);
     file.read(reinterpret_cast<char*>(sample.data()), sample_size);
     
-    std::cout << "🔬 Analisando amostra de " << sample_size / (1024.0 * 1024) << " MB...\n";
+    std::cout << " Analyzing sample of " << sample_size / (1024.0 * 1024) << " MB...\n";
     
     // Análises
     analyze_data_patterns(sample, sample_size);
@@ -193,34 +193,29 @@ int main(int argc, char* argv[]) {
     
     // Testar compressibilidade real
     std::cout << "\n" << std::string(70, '=') << "\n";
-    std::cout << "💡 RECOMENDAÇÕES\n";
+    std::cout << " Suggestions\n";
     std::cout << std::string(70, '=') << "\n";
     
     double entropy = calculate_entropy(sample, sample_size);
     
     if (entropy > 7.5) {
-        std::cout << "⚠️  DADOS ALTAMENTE ALEATÓRIOS (entropia > 7.5)\n";
-        std::cout << "   - Já está muito comprimido ou encriptado?\n";
-        std::cout << "   - Compressão será limitada (~10-20%)\n";
+        std::cout << "  Data is highly random (entropy > 7.5)\n";
+        std::cout << "   - Is it already compressed or encrypted?\n";
+        std::cout << "   - Compression will be limited (~10-20%)\n";
     } else if (entropy > 6.5) {
-        std::cout << "⚠️  DADOS POUCO COMPRESSÍVEIS (entropia 6.5-7.5)\n";
-        std::cout << "   - Compressão esperada: 20-35%\n";
-        std::cout << "   - Recomendação: Usar quantização\n";
+        std::cout << "  Data is little compressible (entropy 6.5-7.5)\n";
+        std::cout << "   - Expected compression: 20-35%\n";
+        std::cout << "   - Recommendation: Use quantization\n";
     } else if (entropy > 5.0) {
-        std::cout << "✅ DADOS RAZOAVELMENTE COMPRESSÍVEIS (entropia 5-6.5)\n";
-        std::cout << "   - Compressão esperada: 35-50%\n";
-        std::cout << "   - Usar Zstd level 19-22\n";
+        std::cout << " Data is reasonably compressible (entropy 5-6.5)\n";
+        std::cout << "   - Expected compression: 35-50%\n";
+        std::cout << "   - Use Zstd level 19-22\n";
     } else {
-        std::cout << "✅ DADOS MUITO COMPRESSÍVEIS (entropia < 5)\n";
-        std::cout << "   - Compressão esperada: 50%+\n";
-        std::cout << "   - Qualquer compressor funcionará bem\n";
+        std::cout << " Data is very compressible (entropy < 5)\n";
+        std::cout << "   - Expected compression: 50%+\n";
+        std::cout << "   - Any compressor will work well\n";
     }
-    
-    std::cout << "\n🎯 PRÓXIMOS PASSOS:\n";
-    std::cout << "   1. Testar quantização F32→F16 (ganho garantido de 50%)\n";
-    std::cout << "   2. Aplicar delta encoding antes de comprimir\n";
-    std::cout << "   3. Separar cabeçalho e dados (compressores diferentes)\n";
-    std::cout << "   4. Usar Zstd com --ultra -22 para máxima compressão\n";
+
     
     return 0;
 }

@@ -53,12 +53,12 @@ int main(int argc, char* argv[]) {
     auto end = std::chrono::high_resolution_clock::now();
     double duration = std::chrono::duration<double>(end - start).count();
 
-    std::cout << "--- RESULTADOS: QUANTIZAÇÃO INT8 + ZSTD ---\n";
-    std::cout << "Tamanho Original:   " << original.size() / (1024*1024) << " MB\n";
-    std::cout << "Tamanho Comprimido: " << c_size / (1024*1024) << " MB\n";
-    std::cout << "Ratio Final:        " << (1.0 - (double)c_size / original.size()) * 100.0 << "%\n";
-    std::cout << "Tempo Total:        " << duration << "s\n";
-    std::cout << "Velocidade:         " << (original.size() / 1024.0 / 1024.0) / duration << " MB/s\n";
+    std::cout << "--- Results: ---\n";
+    std::cout << "Original Size:   " << original.size() / (1024*1024) << " MB\n";
+    std::cout << "Compressed Size: " << c_size / (1024*1024) << " MB\n";
+    std::cout << "Final Ratio:        " << (1.0 - (double)c_size / original.size()) * 100.0 << "%\n";
+    std::cout << "Total Time:        " << duration << "s\n";
+    std::cout << "Speed:         " << (original.size() / 1024.0 / 1024.0) / duration << " MB/s\n";
 
     return 0;
 }
